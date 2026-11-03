@@ -1,6 +1,6 @@
 // src/index.ts
 import { logger } from './utils/logger';
-import { ZenTaoClient } from './zentao_api/client/ZenTaoClient';
+import { ZenTaoClient } from './zentao_api';
 
 const log = logger.tag('index');
 

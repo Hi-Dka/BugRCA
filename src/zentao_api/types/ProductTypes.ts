@@ -3,11 +3,6 @@ export interface ZenTaoProduct {
   name: string;
 }
 
-export interface ProductListData {
+export interface ZenTaoProductListData {
   products: ZenTaoProduct[];
 }
-
-/**
- * Backward compatibility alias
- */
-export type ProductData = ProductListData;

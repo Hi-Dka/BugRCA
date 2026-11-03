@@ -3,11 +3,11 @@ import { ZenTaoError } from '../errors/ZenTaoError';
 import { HttpClient } from '../client/HttpClient';
 import { type Response } from '../types/HttpTypes';
 
-const log = logger.tag('TokenApi');
+const log = logger.tag('AuthApi');
 
-export class TokenApi {
+export class AuthApi {
   constructor(private readonly httpClient: HttpClient) {
-    log.info('TokenApi initialized');
+    log.info('AuthApi initialized');
   }
 
   async login(account: string, password: string): Promise<string> {

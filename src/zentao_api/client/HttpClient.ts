@@ -1,4 +1,4 @@
-import { type RequestOptions, type HttpMethod, type HttpClientConfig } from '../types/HttpTypes.js';
+import { type RequestOptions, type HttpMethod, type HttpClientConfig } from '../types/HttpTypes';
 import { logger } from '../../utils/logger';
 import { ZenTaoError } from '../errors/ZenTaoError';
 
@@ -77,7 +77,7 @@ export class HttpClient {
       const contentType = response.headers.get('Content-Type') ?? '';
       let result: unknown;
 
-      if (response.status == 204) {
+      if (response.status === 204) {
         result = undefined;
       } else if (contentType.includes('application/json')) {
         result = await response.json();

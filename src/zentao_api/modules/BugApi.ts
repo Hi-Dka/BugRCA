@@ -2,7 +2,11 @@ import { logger } from '../../utils/logger';
 import { ZenTaoError } from '../errors/ZenTaoError';
 import { HttpClient } from '../client/HttpClient';
 import { type Response } from '../types/HttpTypes';
-import { type BugListData, type ZenTaoBugListItem, type BugDetailData } from '../types/BugTypes';
+import {
+  type ZenTaoBugListData,
+  type ZenTaoBugListItem,
+  type ZenTaoBugDetailData,
+} from '../types/BugTypes';
 
 const log = logger.tag('BugApi');
 
@@ -13,9 +17,9 @@ export class BugApi {
 
   //TODO: Add parameter for filtering bugs by status, severity, etc.
   async getBugsByProductId(productId: number): Promise<ZenTaoBugListItem[]> {
-    const response = await this.httpClient.get<Response<BugListData>>(
+    const response = await this.httpClient.get<Response<ZenTaoBugListData>>(
       `/products/${productId}/bugs`,
-      { params: { browseType: 'assigntome' } },
+      // { params: { browseType: 'assigntome' } },
     );
 
     if (response.status !== 'success') {
@@ -31,8 +35,8 @@ export class BugApi {
     return response.bugs.map((bug) => ({ id: bug.id, title: bug.title }));
   }
 
-  async getBugDetail(bugId: number): Promise<BugDetailData> {
-    const response = await this.httpClient.get<Response<BugDetailData>>(`/bugs/${bugId}`);
+  async getBugDetail(bugId: number): Promise<ZenTaoBugDetailData> {
+    const response = await this.httpClient.get<Response<ZenTaoBugDetailData>>(`/bugs/${bugId}`);
 
     if (response.status !== 'success') {
       log.error(`Failed to fetch bug detail for bug with ID ${bugId}: ${response.status}`);

@@ -9,14 +9,9 @@ export interface ZenTaoBugListItem {
 /**
  * Bug 列表接口返回载荷
  */
-export interface BugListData {
+export interface ZenTaoBugListData {
   bugs: ZenTaoBugListItem[];
 }
-
-/**
- * Backward compatibility alias
- */
-export type GetBugsByProductIDData = BugListData;
 
 /**
  * 附件信息（用于日志、音视频等附件下载与分析）
@@ -69,18 +64,16 @@ export interface ZenTaoBugDetail {
   openedBy?: string;
   openedDate?: string;
   assignedTo?: string;
-  files: Record<string, ZenTaoBugFile>;
+  /**
+   * 附件列表映射表（无附件时 ZenTao 可能返回空数组或空对象）
+   */
+  files: Record<string, ZenTaoBugFile> | [];
 }
 
 /**
  * Bug 详情接口返回载荷
  */
-export interface BugDetailData {
+export interface ZenTaoBugDetailData {
   bug: ZenTaoBugDetail;
   actions: ZenTaoBugAction[];
 }
-
-/**
- * Backward compatibility alias
- */
-export type GetBugDetailData = BugDetailData;

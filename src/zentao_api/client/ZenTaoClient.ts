@@ -1,9 +1,9 @@
 import { logger } from '../../utils/logger';
 import { type ZenTaoConfig } from '../types/ZenTaoConfig';
 import { type ZenTaoProduct } from '../types/ProductTypes';
-import { type ZenTaoBugListItem, type BugDetailData } from '../types/BugTypes';
+import { type ZenTaoBugListItem, type ZenTaoBugDetailData } from '../types/BugTypes';
 import { HttpClient } from './HttpClient';
-import { TokenApi } from '../modules/TokenApi';
+import { AuthApi } from '../modules/AuthApi';
 import { ProductApi } from '../modules/ProductApi';
 import { BugApi } from '../modules/BugApi';
 
@@ -13,7 +13,7 @@ export class ZenTaoClient {
   private token?: string;
 
   private readonly httpClient: HttpClient;
-  private readonly tokenApi: TokenApi;
+  private readonly authApi: AuthApi;
   private readonly productApi: ProductApi;
   private readonly bugApi: BugApi;
 
@@ -23,7 +23,7 @@ export class ZenTaoClient {
       getToken: () => this.token,
     });
 
-    this.tokenApi = new TokenApi(this.httpClient);
+    this.authApi = new AuthApi(this.httpClient);
     this.productApi = new ProductApi(this.httpClient);
     this.bugApi = new BugApi(this.httpClient);
 
@@ -31,7 +31,7 @@ export class ZenTaoClient {
   }
 
   async login(account: string, password: string): Promise<void> {
-    const response = await this.tokenApi.login(account, password);
+    const response = await this.authApi.login(account, password);
     this.token = response;
   }
 
@@ -51,14 +51,7 @@ export class ZenTaoClient {
     return bugLists.flat();
   }
 
-  /**
-   * @deprecated Use `getAllBugs()` instead.
-   */
-  async getBugs(): Promise<ZenTaoBugListItem[]> {
-    return this.getAllBugs();
-  }
-
-  async getBugDetail(bugId: number): Promise<BugDetailData> {
+  async getBugDetail(bugId: number): Promise<ZenTaoBugDetailData> {
     return this.bugApi.getBugDetail(bugId);
   }
 }

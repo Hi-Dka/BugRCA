@@ -2,7 +2,7 @@ import { logger } from '../../utils/logger';
 import { ZenTaoError } from '../errors/ZenTaoError';
 import { HttpClient } from '../client/HttpClient';
 import { type Response } from '../types/HttpTypes';
-import { type ProductListData, type ZenTaoProduct } from '../types/ProductTypes';
+import { type ZenTaoProductListData, type ZenTaoProduct } from '../types/ProductTypes';
 
 const log = logger.tag('ProductApi');
 
@@ -12,7 +12,7 @@ export class ProductApi {
   }
 
   async getProducts(): Promise<ZenTaoProduct[]> {
-    const response = await this.httpClient.get<Response<ProductListData>>('/products', {
+    const response = await this.httpClient.get<Response<ZenTaoProductListData>>('/products', {
       params: { browseType: 'noclosed' },
     });
 
