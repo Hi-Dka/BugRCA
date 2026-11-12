@@ -1,3 +1,3 @@
 export interface ZenTaoConfig {
-  baseUrl: string;
+    baseUrl: string;
 }
