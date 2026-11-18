@@ -13,7 +13,3 @@ export interface RequestOptions {
 }
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-
-export type Response<T extends object = Record<string, unknown>> = {
-    status: string;
-} & T;

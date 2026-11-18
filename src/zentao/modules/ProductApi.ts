@@ -1,8 +1,8 @@
 import { logger } from '../../utils/logger';
-import { ZenTaoError } from '../errors/ZenTaoError';
 import { HttpClient } from '../client/HttpClient';
-import { type Response } from '../types/HttpTypes';
-import { type ZenTaoProductListData, type ZenTaoProduct } from '../types/ProductTypes';
+import { type ZenTaoProduct } from '../types';
+import { parseProductListData } from '../parsers/product';
+import { parseEnvelope } from '../parsers/envelope';
 
 const log = logger.tag('ProductApi');
 
@@ -12,20 +12,11 @@ export class ProductApi {
     }
 
     async getProducts(): Promise<ZenTaoProduct[]> {
-        const response = await this.httpClient.get<Response<ZenTaoProductListData>>('/products', {
+        const raw = await this.httpClient.get('/products', {
             params: { browseType: 'noclosed' },
         });
-
-        if (response.status !== 'success') {
-            log.error(`Failed to fetch products: ${response.status}`);
-            throw new ZenTaoError('Failed to fetch products');
-        }
-
-        log.info(`Fetched ${response.products.length} products`);
-        for (const product of response.products) {
-            log.info(`Product ID: ${product.id}, Name: ${product.name}`);
-        }
-
-        return response.products.map((product) => ({ id: product.id, name: product.name }));
+        const products = parseProductListData(parseEnvelope(raw));
+        log.info(`Fetched ${products.length} products`);
+        return products;
     }
 }

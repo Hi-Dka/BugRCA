@@ -1,22 +1,24 @@
+import { assertPositiveInteger } from '../../utils';
+
 export type BugId = number & { readonly __brand: unique symbol };
 export type BugActionId = number & { readonly __brand: unique symbol };
 export type BugFileId = number & { readonly __brand: unique symbol };
 export type BugActionHistoryId = number & { readonly __brand: unique symbol };
 
-export function toBugId(id: number): BugId {
-    return id as BugId;
+export function toBugId(id: number, path = 'BugId'): BugId {
+    return assertPositiveInteger(id, path) as BugId;
 }
 
-export function toBugActionId(id: number): BugActionId {
-    return id as BugActionId;
+export function toBugActionId(id: number, path = 'BugActionId'): BugActionId {
+    return assertPositiveInteger(id, path) as BugActionId;
 }
 
-export function toBugFileId(id: number): BugFileId {
-    return id as BugFileId;
+export function toBugFileId(id: number, path = 'BugFileId'): BugFileId {
+    return assertPositiveInteger(id, path) as BugFileId;
 }
 
-export function toBugActionHistoryId(id: number): BugActionHistoryId {
-    return id as BugActionHistoryId;
+export function toBugActionHistoryId(id: number, path = 'BugActionHistoryId'): BugActionHistoryId {
+    return assertPositiveInteger(id, path) as BugActionHistoryId;
 }
 
 export interface ZenTaoBugListItem {
@@ -67,7 +69,7 @@ export interface ZenTaoBugDetail {
     openedBy?: string;
     openedDate?: string;
     assignedTo?: string;
-    files: Record<string, ZenTaoBugFile> | [];
+    files: Record<string, ZenTaoBugFile>;
 }
 
 export interface ZenTaoBugDetailData {

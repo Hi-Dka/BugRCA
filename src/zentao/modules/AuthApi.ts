@@ -1,7 +1,7 @@
 import { logger } from '../../utils/logger';
-import { ZenTaoError } from '../errors/ZenTaoError';
 import { HttpClient } from '../client/HttpClient';
-import { type Response } from '../types/HttpTypes';
+import { parseLoginData } from '../parsers/auth';
+import { parseEnvelope } from '../parsers/envelope';
 
 const log = logger.tag('AuthApi');
 
@@ -11,18 +11,13 @@ export class AuthApi {
     }
 
     async login(account: string, password: string): Promise<string> {
-        const response = await this.httpClient.post<Response<{ token: string }>>(
+        const raw = await this.httpClient.post(
             'users/login',
             { account, password },
             { auth: false },
         );
-
-        if (response.status !== 'success') {
-            log.error(`Login failed: ${response.status}`);
-            throw new ZenTaoError('Login failed');
-        }
-
-        log.info(`Login response: ${response.status} Token: ${response.token}`);
-        return response.token;
+        const token = parseLoginData(parseEnvelope(raw));
+        log.info('Login succeeded');
+        return token;
     }
 }

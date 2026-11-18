@@ -1,15 +1,11 @@
 import { logger } from '../../utils/logger';
 import { type LarkManager } from '../client/LarkManager';
-import {
-    type ReceiverTargetInput,
-    type ReceiverTarget,
-    normalizeReceiverTarget,
-} from '../types/ReceiverTypes';
-import {
-    type SendMessageResult,
-    type SendTextOptions,
-    type SendCardOptions,
-    type ReplyOptions,
+import { type ReceiverTarget } from '../types/ReceiverTypes';
+import type {
+    SendMessageResult,
+    SendTextOptions,
+    SendCardOptions,
+    ReplyOptions,
 } from '../types/MessagePayloadTypes';
 import { NotificationError } from '../errors/NotificationError';
 import { type FeishuCardPayload } from './types';
@@ -19,13 +15,11 @@ const log = logger.tag('MessageApi');
 export class MessageApi {
     constructor(private readonly larkManager: LarkManager) {}
 
-    /**
-     * Resolves the target recipient, falling back to defaultChatId if not provided.
-     */
-    private resolveTarget(target?: ReceiverTargetInput): ReceiverTarget {
+    private resolveTarget(target?: ReceiverTarget): ReceiverTarget {
         if (target) {
-            return normalizeReceiverTarget(target);
+            return target;
         }
+
         const defaultChatId = this.larkManager.getConfig().defaultChatId;
         if (defaultChatId) {
             return { type: 'chat_id', id: defaultChatId };
@@ -35,11 +29,8 @@ export class MessageApi {
         );
     }
 
-    /**
-     * Sends a plain text message to a chat, user, or email.
-     */
     async sendText(
-        target: ReceiverTargetInput | undefined,
+        target: ReceiverTarget | undefined,
         text: string,
         options?: SendTextOptions,
     ): Promise<SendMessageResult> {
@@ -49,11 +40,8 @@ export class MessageApi {
         return this.createMessage(resolved, 'text', content, options?.uuid);
     }
 
-    /**
-     * Sends an interactive card message to a chat, user, or email.
-     */
     async sendCard(
-        target: ReceiverTargetInput | undefined,
+        target: ReceiverTarget | undefined,
         card: FeishuCardPayload | Record<string, unknown> | string,
         options?: SendCardOptions,
     ): Promise<SendMessageResult> {
@@ -63,9 +51,6 @@ export class MessageApi {
         return this.createMessage(resolved, 'interactive', content, options?.uuid);
     }
 
-    /**
-     * Replies to an existing message with text.
-     */
     async replyText(
         messageId: string,
         text: string,
@@ -78,9 +63,6 @@ export class MessageApi {
         return this.replyMessage(messageId, 'text', content, options?.uuid);
     }
 
-    /**
-     * Replies to an existing message with an interactive card.
-     */
     async replyCard(
         messageId: string,
         card: FeishuCardPayload | Record<string, unknown> | string,
@@ -93,9 +75,6 @@ export class MessageApi {
         return this.replyMessage(messageId, 'interactive', content, options?.uuid);
     }
 
-    /**
-     * Internal helper to create a message using Feishu SDK.
-     */
     private async createMessage(
         target: ReceiverTarget,
         msgType: 'text' | 'interactive' | 'post',
@@ -153,9 +132,6 @@ export class MessageApi {
         }
     }
 
-    /**
-     * Internal helper to reply to an existing message using Feishu SDK.
-     */
     private async replyMessage(
         messageId: string,
         msgType: 'text' | 'interactive' | 'post',

@@ -1,11 +1,16 @@
 import { logger } from '../../utils/logger';
-import { type ZenTaoConfig } from '../types/ZenTaoConfig';
-import { type ZenTaoProduct } from '../types/ProductTypes';
-import { type ZenTaoBugListItem, type ZenTaoBugDetailData } from '../types/BugTypes';
 import { HttpClient } from './HttpClient';
 import { AuthApi } from '../modules/AuthApi';
 import { ProductApi } from '../modules/ProductApi';
 import { BugApi } from '../modules/BugApi';
+import type {
+    BugId,
+    ProductId,
+    ZenTaoConfig,
+    ZenTaoProduct,
+    ZenTaoBugListItem,
+    ZenTaoBugDetailData,
+} from '../types';
 
 const log = logger.tag('ZenTaoClient');
 
@@ -39,7 +44,7 @@ export class ZenTaoClient {
         return this.productApi.getProducts();
     }
 
-    async getBugsByProductId(productId: number): Promise<ZenTaoBugListItem[]> {
+    async getBugsByProductId(productId: ProductId): Promise<ZenTaoBugListItem[]> {
         return this.bugApi.getBugsByProductId(productId);
     }
 
@@ -51,7 +56,7 @@ export class ZenTaoClient {
         return bugLists.flat();
     }
 
-    async getBugDetail(bugId: number): Promise<ZenTaoBugDetailData> {
+    async getBugDetail(bugId: BugId): Promise<ZenTaoBugDetailData> {
         return this.bugApi.getBugDetail(bugId);
     }
 }

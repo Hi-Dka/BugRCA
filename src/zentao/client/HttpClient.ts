@@ -26,19 +26,19 @@ export class HttpClient {
         log.info('HttpClient initialized');
     }
 
-    async get<T>(path: string, options?: RequestOptions): Promise<T> {
-        return this.request<T>('GET', path, options);
+    async get(path: string, options?: RequestOptions): Promise<unknown> {
+        return this.request('GET', path, options);
     }
 
-    async post<T>(path: string, data?: unknown, options?: RequestOptions): Promise<T> {
-        return this.request<T>('POST', path, { ...options, data });
+    async post(path: string, data?: unknown, options?: RequestOptions): Promise<unknown> {
+        return this.request('POST', path, { ...options, data });
     }
 
-    private async request<T>(
+    private async request(
         method: HttpMethod,
         path: string,
         options?: RequestOptions,
-    ): Promise<T> {
+    ): Promise<unknown> {
         const url = new URL(`${this.baseUrl}/${path.replace(/^\/+/, '')}`);
 
         if (options?.params) {
@@ -97,7 +97,7 @@ export class HttpClient {
                 );
             }
 
-            return result as T;
+            return result;
         } catch (error) {
             if (error instanceof ZenTaoError) {
                 throw error;

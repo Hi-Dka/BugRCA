@@ -1,14 +1,8 @@
 import { logger } from '../../utils/logger';
-import { ZenTaoError } from '../errors/ZenTaoError';
 import { HttpClient } from '../client/HttpClient';
-import { type Response } from '../types/HttpTypes';
-import {
-    type ZenTaoBugListData,
-    type ZenTaoBugListItem,
-    type ZenTaoBugDetailData,
-    toBugId,
-} from '../types/BugTypes';
-import type { ProductId } from '../types/ProductTypes.js';
+import type { BugId, ProductId, ZenTaoBugDetailData, ZenTaoBugListItem } from '../types';
+import { parseBugDetailData, parseBugListData } from '../parsers/bug';
+import { parseEnvelope } from '../parsers/envelope';
 
 const log = logger.tag('BugApi');
 
@@ -17,38 +11,19 @@ export class BugApi {
         log.info('BugApi initialized');
     }
 
-    //TODO: Add parameter for filtering bugs by status, severity, etc.
     async getBugsByProductId(productId: ProductId): Promise<ZenTaoBugListItem[]> {
-        const response = await this.httpClient.get<Response<ZenTaoBugListData>>(
-            `/products/${productId}/bugs`,
-            { params: { browseType: 'assigntome' } },
-        );
-
-        if (response.status !== 'success') {
-            log.error(`Failed to fetch bugs for product with ID ${productId}: ${response.status}`);
-            throw new ZenTaoError('Failed to fetch bugs');
-        }
-
-        log.info(`Fetched ${response.bugs.length} bugs for product with ID ${productId}`);
-        for (const bug of response.bugs) {
-            log.info(`Bug ID: ${bug.id}, Title: ${bug.title}`);
-        }
-
-        return response.bugs.map((bug) => ({ id: toBugId(bug.id), title: bug.title }));
+        const raw = await this.httpClient.get(`/products/${productId}/bugs`, {
+            params: { browseType: 'assigntome' },
+        });
+        const bugs = parseBugListData(parseEnvelope(raw));
+        log.info(`Fetched ${bugs.length} bugs for product with ID ${productId}`);
+        return bugs;
     }
 
-    async getBugDetail(bugId: number): Promise<ZenTaoBugDetailData> {
-        const response = await this.httpClient.get<Response<ZenTaoBugDetailData>>(`/bugs/${bugId}`);
-
-        if (response.status !== 'success') {
-            log.error(`Failed to fetch bug detail for bug with ID ${bugId}: ${response.status}`);
-            throw new ZenTaoError('Failed to fetch bug detail');
-        }
-
+    async getBugDetail(bugId: BugId): Promise<ZenTaoBugDetailData> {
+        const raw = await this.httpClient.get(`/bugs/${bugId}`);
+        const detail = parseBugDetailData(parseEnvelope(raw));
         log.info(`Fetched bug detail for bug with ID ${bugId}`);
-        return {
-            bug: response.bug,
-            actions: response.actions,
-        };
+        return detail;
     }
 }
