@@ -7,9 +7,11 @@ import {
     parseNumber,
     parseShape,
     parseString,
+    parseEnum,
     type Parser,
 } from '../../utils';
 import {
+    BUG_STATUS,
     toBugActionId,
     toBugFileId,
     toBugId,
@@ -92,7 +94,7 @@ const parseBugAction = parseShape<ZenTaoBugAction>({
 const parseBugDetail = parseShape<ZenTaoBugDetail>({
     id: parseId(toBugId),
     title: parseString,
-    status: parseString,
+    status: parseEnum(BUG_STATUS),
     steps: parseString,
     openedBy: optional(parseString),
     openedDate: optional(parseString),

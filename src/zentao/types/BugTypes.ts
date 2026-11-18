@@ -5,6 +5,9 @@ export type BugActionId = number & { readonly __brand: unique symbol };
 export type BugFileId = number & { readonly __brand: unique symbol };
 export type BugActionHistoryId = number & { readonly __brand: unique symbol };
 
+export const BUG_STATUS = ['active', 'resolved', 'closed'] as const;
+export type BugStatus = (typeof BUG_STATUS)[number];
+
 export function toBugId(id: number, path = 'BugId'): BugId {
     return assertPositiveInteger(id, path) as BugId;
 }

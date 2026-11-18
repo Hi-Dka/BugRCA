@@ -116,6 +116,21 @@ export function parseArray<T>(itemParser: Parser<T>): Parser<T[]> {
     };
 }
 
+
+function isOneOf<T extends readonly string[]>(list: T, value: string): value is T[number] {
+    return list.some((item) => item === value);
+}
+
+export function parseEnum<const T extends readonly string[]>(allowed: T): Parser<T[number]> {
+    return (value: unknown, path: string): T[number] => {
+        const text = parseString(value, path);
+        if (!isOneOf(allowed, text)) {
+            throw new ParseError(path, `one of ${allowed.join(' | ')}`, value);
+        }
+        return text;
+    };
+}
+
 /**
  * Validates that a numeric domain identifier is a positive integer.
  */

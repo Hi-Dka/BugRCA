@@ -175,3 +175,26 @@ Object.entries() 是 JavaScript 的内置方法，英文 entries 的意思是“
 - Object.values(user)：直接拿到所有值的数组 ['Alice', 25]。
 - Object.entries(user)：直接拿到键值对数组 [['name', 'Alice'], ['age', 25]]。
 - console.log(user)：甚至连遍历都不用写，直接扔进 console.log，引擎就能把整个对象的键和值原原本本打印出来。
+
+## 字面量类型
+（Literal Type）是 TypeScript 中的一种特殊类型，它表示一个具体的值，而不是一类值。字面量类型可以是字符串字面量、数字字面量或布尔字面量。字面量类型也是一个类型,只是这个类型有且只有一个值就是它本身（该字面量对应的运行时值）。
+
+
+## as const
+1. 普通数组 string[]（长度不固定、元素可修改）
+在没有 as const 时，TS 认为这个数组随时可能执行 .push('new') 或 A[0] = 'other'。既然长度和内容都不确定，TS 只能退而求其次，用最宽泛的 string[] 来表示“里面装了一堆数量不定的字符串”。
+
+2. 只读元组 readonly ['active', 'resolved', 'closed']（长度固定、内容锁死）
+加上 as const 后，你向编译器立下了军令状：“这个数组永远只有这 3 个元素，顺序不能变，每个位置的值也不能改，也不能新增或删除。”
+既然长度固定为 3，且每个位置的值都死死固定了，TS 就不再需要用宽泛的 string[] 去兜底，而是直接把每个坑位精确标记出来，变成了元组（Tuple）类型。
+
+``` TypeScript
+const BUG_STATUS = ['active', 'resolved', 'closed'] as const;
+// TS 推断出 BUG_STATUS 的类型是 readonly ['active', 'resolved', 'closed']
+// 也就是一个只读元组，长度固定为 3，每个位置的值都被锁死了。
+type BugStatus = (typeof BUG_STATUS)[number];
+// 这里的 (typeof BUG_STATUS)[number] 是一个索引访问类型，它表示“从 BUG_STATUS 这个元组里取出任意一个位置的值”，也就是 'active' | 'resolved' | 'closed' 这个联合类型。
+
+const A = ['active', 'resolved', 'closed'];
+// typeof A 推出的是：string[]
+``` 
