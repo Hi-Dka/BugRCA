@@ -25,6 +25,8 @@
   比如 interface User { id: number; name: string }，那么 keyof User 就是 'id' | 'name'。
   K extends keyof T：意思是 “类型参数 K 必须被限制在 T 的属性名范围内”（即 K 只能是 'id' 或 'name'，不能乱传一个 'age' 进来）。
   A extends B ? X : Y（条件类型）：这里的 extends 相当于 if 判断——“如果 A 能赋值给 B（A 符合 B 的要求），结果就是 X，否则是 Y”。
+- extends 也可以用于泛型约束，表示类型参数必须满足某个条件。例如，`T extends U` 表示类型参数 `T` 必须是类型 `U` 的子类型或兼容类型。
+  在使用的时候时候在遇到比如字面量类型的时候，可以使用`const T extends U`这种方式来限制类型参数的范围，比如传入一个string[],可以把这个数组的元素类型限制为某个特定的字面量类型。
 
 ## Pick
 
@@ -177,18 +179,18 @@ Object.entries() 是 JavaScript 的内置方法，英文 entries 的意思是“
 - console.log(user)：甚至连遍历都不用写，直接扔进 console.log，引擎就能把整个对象的键和值原原本本打印出来。
 
 ## 字面量类型
+
 （Literal Type）是 TypeScript 中的一种特殊类型，它表示一个具体的值，而不是一类值。字面量类型可以是字符串字面量、数字字面量或布尔字面量。字面量类型也是一个类型,只是这个类型有且只有一个值就是它本身（该字面量对应的运行时值）。
 
-
 ## as const
+
 1. 普通数组 string[]（长度不固定、元素可修改）
-在没有 as const 时，TS 认为这个数组随时可能执行 .push('new') 或 A[0] = 'other'。既然长度和内容都不确定，TS 只能退而求其次，用最宽泛的 string[] 来表示“里面装了一堆数量不定的字符串”。
-
+   在没有 as const 时，TS 认为这个数组随时可能执行 .push('new') 或 A[0] = 'other'。既然长度和内容都不确定，TS 只能退而求其次，用最宽泛的 string[] 来表示“里面装了一堆数量不定的字符串”。
 2. 只读元组 readonly ['active', 'resolved', 'closed']（长度固定、内容锁死）
-加上 as const 后，你向编译器立下了军令状：“这个数组永远只有这 3 个元素，顺序不能变，每个位置的值也不能改，也不能新增或删除。”
-既然长度固定为 3，且每个位置的值都死死固定了，TS 就不再需要用宽泛的 string[] 去兜底，而是直接把每个坑位精确标记出来，变成了元组（Tuple）类型。
+   加上 as const 后，你向编译器立下了军令状：“这个数组永远只有这 3 个元素，顺序不能变，每个位置的值也不能改，也不能新增或删除。”
+   既然长度固定为 3，且每个位置的值都死死固定了，TS 就不再需要用宽泛的 string[] 去兜底，而是直接把每个坑位精确标记出来，变成了元组（Tuple）类型。
 
-``` TypeScript
+```TypeScript
 const BUG_STATUS = ['active', 'resolved', 'closed'] as const;
 // TS 推断出 BUG_STATUS 的类型是 readonly ['active', 'resolved', 'closed']
 // 也就是一个只读元组，长度固定为 3，每个位置的值都被锁死了。
@@ -197,4 +199,4 @@ type BugStatus = (typeof BUG_STATUS)[number];
 
 const A = ['active', 'resolved', 'closed'];
 // typeof A 推出的是：string[]
-``` 
+```
