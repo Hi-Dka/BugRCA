@@ -200,3 +200,6 @@ type BugStatus = (typeof BUG_STATUS)[number];
 const A = ['active', 'resolved', 'closed'];
 // typeof A 推出的是：string[]
 ```
+
+## TS 中的8个固定类型值可以使用typeof来获取
+`bigint`、`boolean`、`number`、`string`、`symbol`、`undefined`、`object`、`function`
