@@ -48,10 +48,6 @@ export type ShapeOf<T> = {
         : Parser<T[K]>;
 };
 
-/**
- * Wraps a parser for an optional property. Missing (`undefined`) or `null` raw
- * values are omitted from the parsed object rather than assigned `undefined`.
- */
 export function optional<T>(parser: Parser<T>): OptionalParser<T> {
     return {
         optional: true,
@@ -63,10 +59,6 @@ export function isOptionalParser(value: unknown): value is OptionalParser<unknow
     return typeof value === 'object' && value !== null && 'optional' in value && 'parse' in value;
 }
 
-/**
- * Builds a runtime parser for object shape `T` enforcing explicit parsers for
- * all required and optional keys via `ShapeOf<T>`.
- */
 export function parseShape<T extends object>(shape: ShapeOf<T>): Parser<T> {
     return (value: unknown, path: string): T => {
         const obj = asRecord(value, path);
@@ -131,9 +123,6 @@ export function parseEnum<const T extends readonly string[]>(allowed: T): Parser
     };
 }
 
-/**
- * Validates that a numeric domain identifier is a positive integer.
- */
 export function assertPositiveInteger(value: number, path: string): number {
     if (!Number.isInteger(value) || value <= 0) {
         throw new ParseError(path, 'positive integer', value);
@@ -141,9 +130,6 @@ export function assertPositiveInteger(value: number, path: string): number {
     return value;
 }
 
-/**
- * Composes numeric validation and a branded ID constructor into a `Parser<T>`.
- */
 export function parseId<T>(toId: (id: number, path: string) => T): Parser<T> {
     return (value: unknown, path: string): T => toId(parseNumber(value, path), path);
 }
