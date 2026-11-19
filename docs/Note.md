@@ -304,3 +304,26 @@ type ChatType = 'p2p' | 'group' | string;
 最终在 IDE 里的体验就变成了：
   有智能提示：打字时，IDE 的自动补全列表里会清晰地弹出 'p2p' 和 'group' 供你选择。
   高度可扩展：如果你业务里遇到飞书/钉钉新增的 'topic_group' 或自定义类型，直接传 'custom_type' 过去，TypeScript 也不会报错。
+
+## number
+
+在类型世界里，number 是所有数字的全集，而 1、2、3 等是它的子集。所以在类型世界里，我们可以使用T[number]来获取数组 T 中所有元素的联合类型。
+
+## 联合类型和可辨识联合类型
+
+联合类型真正强大的地方之一，是可以把多个不同结构的对象类型拼在一起，通过一个共同的字面量字段（比如 type 或 kind）来区分：
+``` TypeScript
+type ParseResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; error: string };
+
+function handleResult(res: ParseResult<number>) {
+  if (res.ok) {
+    // TS 自动知道这里是 { ok: true; value: number }，可以直接访问 res.value
+    console.log(res.value + 1);
+  } else {
+    // TS 自动知道这里是 { ok: false; error: string }，可以直接访问 res.error
+    console.error(res.error);
+  }
+}
+```
