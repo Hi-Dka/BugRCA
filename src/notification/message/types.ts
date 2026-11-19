@@ -15,7 +15,38 @@ export type CardColorTheme =
 
 export type CardButtonType = 'default' | 'primary' | 'danger';
 
-export interface CardElement {
+export interface CardMarkdownElement {
+    tag: 'div';
+    text: {
+        tag: 'lark_md';
+        content: string;
+    };
+}
+
+export interface CardFieldsElement {
+    tag: 'div';
+    fields: Array<{
+        is_short: boolean;
+        text: {
+            tag: 'lark_md';
+            content: string;
+        };
+    }>;
+}
+
+export interface CardDividerElement {
+    tag: 'hr';
+}
+
+export interface CardActionGroupElement {
+    tag: 'action';
+    actions: CardActionItem[];
+}
+
+export type CardElement =
+    CardMarkdownElement | CardFieldsElement | CardDividerElement | CardActionGroupElement;
+
+export interface CardCustomElement {
     tag: string;
     [key: string]: unknown;
 }
@@ -25,7 +56,7 @@ export interface CardHeader {
         tag: 'plain_text';
         content: string;
     };
-    template?: CardColorTheme | undefined;
+    template?: CardColorTheme;
 }
 
 export interface CardActionItem {
@@ -34,17 +65,15 @@ export interface CardActionItem {
         tag: 'plain_text';
         content: string;
     };
-    type?: CardButtonType | undefined;
-    url?: string | undefined;
-    multi_url?:
-        | {
-              url?: string | undefined;
-              android_url?: string | undefined;
-              ios_url?: string | undefined;
-              pc_url?: string | undefined;
-          }
-        | undefined;
-    value?: Record<string, unknown> | undefined;
+    type?: CardButtonType;
+    url?: string;
+    multi_url?: {
+        url?: string;
+        android_url?: string;
+        ios_url?: string;
+        pc_url?: string;
+    };
+    value?: Record<string, unknown>;
 }
 
 export interface FeishuCardPayload {
@@ -52,6 +81,6 @@ export interface FeishuCardPayload {
         wide_screen_mode?: boolean;
         [key: string]: unknown;
     };
-    header?: CardHeader | undefined;
-    elements: CardElement[];
+    header?: CardHeader;
+    elements: Array<CardElement | CardCustomElement>;
 }
