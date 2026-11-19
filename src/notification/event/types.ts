@@ -1,8 +1,10 @@
+import type { LiteralUnionString } from '../../utils/';
+
 export interface MessageSender {
-    openId?: string | undefined;
-    userId?: string | undefined;
-    unionId?: string | undefined;
-    senderType?: string | undefined;
+    openId?: string;
+    userId?: string;
+    unionId?: string;
+    senderType?: string;
 }
 
 export interface MessageEvent {
@@ -11,32 +13,32 @@ export interface MessageEvent {
     /** Chat ID where the message was received */
     chatId: string;
     /** Chat type: 'p2p' (direct message) or 'group' (group chat) */
-    chatType: 'p2p' | 'group' | string;
+    chatType: LiteralUnionString<'p2p' | 'group'>;
     /** Message type: text, post, image, etc. */
     messageType: string;
     /** Parsed text string if messageType is 'text' */
-    text?: string | undefined;
+    text?: string;
     /** Raw content payload string */
     content: string;
     /** Information about the sender */
-    sender?: MessageSender | undefined;
+    sender?: MessageSender;
     /** Timestamp when message was created */
-    createTime?: string | undefined;
+    createTime?: string;
     /** Full raw event received from Feishu SDK */
     raw: unknown;
 }
 
 export interface CardActionEvent {
     /** Open ID of the user triggering the action */
-    openId?: string | undefined;
+    openId?: string;
     /** User ID of the user triggering the action */
-    userId?: string | undefined;
+    userId?: string;
     /** Target message ID holding the card */
-    messageId?: string | undefined;
+    messageId?: string;
     /** Custom key-value pairs assigned to the clicked button/action */
-    actionValue?: Record<string, unknown> | undefined;
+    actionValue?: Record<string, unknown>;
     /** Tag of the action element (e.g. 'button') */
-    actionTag?: string | undefined;
+    actionTag?: string;
     /** Full raw event payload from Feishu */
     raw: unknown;
 }
