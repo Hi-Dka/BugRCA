@@ -1,7 +1,7 @@
 export interface HttpClientConfig {
     baseUrl: string;
-    timeout?: number;
-    getToken?: () => string | undefined;
+    timeout?: number | undefined;
+    getToken?: (() => string | undefined) | undefined;
 }
 
 export interface RequestOptions {

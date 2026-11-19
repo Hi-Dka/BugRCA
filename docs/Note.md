@@ -203,3 +203,60 @@ const A = ['active', 'resolved', 'closed'];
 
 ## TS 中的8个固定类型值可以使用typeof来获取
 `bigint`、`boolean`、`number`、`string`、`symbol`、`undefined`、`object`、`function`
+
+## 索引签名
+{ [s: string]: unknown } 是 TypeScript 的索引签名（Index Signature）写法，里面的 s 只是个随便起的占位名，用来提示“这里放的是字符串键”（写成 [key: string]: unknown 或 [k: string]: unknown 完全等价）。
+
+``` TypeScript
+// 例子：
+
+    export interface CardElement {
+        tag: string;
+        [key: string]: unknown;   // 这里的 [key: string] 和标准库里的 [s: string] 是同一个语法
+    }
+
+// 它的意思是：“这个对象上，任意 string 类型的属性名，对应的值的类型都是 unknown。”
+```
+
+
+## 结构化类型的注意点
+
+在 parseShape<T>(shape) 中怎么体现？
+ShapeOf<T> 算出目标结构：
+拿 T 的所有键（keyof T），用 -? 把所有可选属性变成必填键，并把属性值映射成对应的 Parser 或 OptionalParser。
+可以把它看作一个“新对象类型”，规定了 shape 必须长什么样。
+- 少写属性一定报错：
+  因为目标结构里每个键都是必填的，传进去的对象少任何一个键，结构都不完整，TS 直接报错。
+- 多写属性的区别：
+  1. 直接传对象字面量：会触发 TS 的“多余属性检查”，多写键会报错。
+  2. 先存变量再传参：纯结构化类型检查下，只要包含目标结构要求的键且类型正确，多出来的属性通常不会报错。
+
+  ``` TypeScript
+  // 例子：
+  interface User {
+      id: number;
+      age: string;
+  }
+  parseShape<User>({
+      id: parseNumber,
+      age: optional(parseNumber),
+      extra: parseString, // 直接传对象字面量时，TS 的“多余属性检查”会直接报错
+  });
+
+  const shape = {
+      id: parseNumber,
+      age: optional(parseNumber),
+      extra: parseString, // 先存变量再传参时，多出来的属性通常不会报错
+  };
+  parseShape<User>(shape);
+
+  ```
+## ??
+`??` 是 JavaScript 和 TypeScript 中的空值合并运算符（Nullish Coalescing Operator）。它用于在左侧的表达式为 null 或 undefined 时，返回右侧的默认值；否则返回左侧的值。
+
+## 空值
+在 JavaScript / TypeScript 里：
+
+1. 属性没有传（对象里不存在这个 key）时，读取 config.timeout 的运行时结果永远是 undefined。
+  例如：new HttpClient({ baseUrl: 'https://example.com' }) 中，'timeout' in config 为 false，而 config.timeout 的值是 undefined。
+2. null 永远不会自动产生，只有调用方或外部数据（如 JSON）显式写了 null（例如 { timeout: null }）时，它才会是 null。

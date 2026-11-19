@@ -20,7 +20,6 @@ different things:
 Choose the form by where the type is used:
 
 | Where | Form | Why
-
 |                                                             |                                  |                                                         |
 | ----------------------------------------------------------- | -------------------------------- | ------------------------------------------------------- |
 | Data models: API responses, DTOs, persisted shapes          | `a?: T`                          | JSON keys are either present with a value or absent.    |

@@ -15,7 +15,7 @@ import type {
 const log = logger.tag('ZenTaoClient');
 
 export class ZenTaoClient {
-    private token?: string;
+    private token: string | undefined = undefined;
 
     private readonly httpClient: HttpClient;
     private readonly authApi: AuthApi;
@@ -25,6 +25,7 @@ export class ZenTaoClient {
     constructor(config: ZenTaoConfig) {
         this.httpClient = new HttpClient({
             baseUrl: `${config.baseUrl}/api.php/v2`,
+            timeout: undefined,
             getToken: () => this.token,
         });
 
