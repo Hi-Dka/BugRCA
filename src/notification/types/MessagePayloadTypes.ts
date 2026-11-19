@@ -11,17 +11,11 @@ export interface SendMessageResult {
     raw?: unknown;
 }
 
-export interface SendTextOptions {
+export interface MessageSendOptions {
     /** Optional UUID for request idempotency */
-    uuid?: string;
+    uuid?: string | undefined;
 }
 
-export interface SendCardOptions {
-    /** Optional UUID for request idempotency */
-    uuid?: string;
-}
-
-export interface ReplyOptions {
-    /** Optional UUID for request idempotency */
-    uuid?: string;
-}
+export type SendTextOptions = MessageSendOptions;
+export type SendCardOptions = MessageSendOptions;
+export type ReplyOptions = MessageSendOptions;
