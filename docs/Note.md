@@ -28,6 +28,7 @@
 • 剩余（Rest）：把没匹配完的散落项打包收起来（通常在等号左边解构、或函数形参里）：
   const { domain, ...rest } = config; // 剩余属性：rest 是去掉 domain 后剩下的对象
   function fn(first, ...others) {}    // 剩余参数：others 是第 2 个起的所有参数组成的数组
+
 ## extends
 
 `extends` 关键字在 TypeScript 中有多种用途，主要用于类型约束和继承。它可以用于泛型约束、接口继承、类继承等场景。
@@ -214,12 +215,14 @@ const A = ['active', 'resolved', 'closed'];
 ```
 
 ## TS 中的8个固定类型值可以使用typeof来获取
+
 `bigint`、`boolean`、`number`、`string`、`symbol`、`undefined`、`object`、`function`
 
 ## 索引签名
+
 { [s: string]: unknown } 是 TypeScript 的索引签名（Index Signature）写法，里面的 s 只是个随便起的占位名，用来提示“这里放的是字符串键”（写成 [key: string]: unknown 或 [k: string]: unknown 完全等价）。
 
-``` TypeScript
+```TypeScript
 // 例子：
 
     export interface CardElement {
@@ -230,20 +233,21 @@ const A = ['active', 'resolved', 'closed'];
 // 它的意思是：“这个对象上，任意 string 类型的属性名，对应的值的类型都是 unknown。”
 ```
 
-
 ## 结构化类型的注意点
 
-在 parseShape<T>(shape) 中怎么体现？
-ShapeOf<T> 算出目标结构：
+在 parseShape<T></t>(shape) 中怎么体现？
+ShapeOf<T></t> 算出目标结构：
 拿 T 的所有键（keyof T），用 -? 把所有可选属性变成必填键，并把属性值映射成对应的 Parser 或 OptionalParser。
 可以把它看作一个“新对象类型”，规定了 shape 必须长什么样。
+
 - 少写属性一定报错：
   因为目标结构里每个键都是必填的，传进去的对象少任何一个键，结构都不完整，TS 直接报错。
 - 多写属性的区别：
+
   1. 直接传对象字面量：会触发 TS 的“多余属性检查”，多写键会报错。
   2. 先存变量再传参：纯结构化类型检查下，只要包含目标结构要求的键且类型正确，多出来的属性通常不会报错。
 
-  ``` TypeScript
+  ```TypeScript
   // 例子：
   interface User {
       id: number;
@@ -263,14 +267,17 @@ ShapeOf<T> 算出目标结构：
   parseShape<User>(shape);
 
   ```
+
 ## ??
+
 `??` 是 JavaScript 和 TypeScript 中的空值合并运算符（Nullish Coalescing Operator）。它用于在左侧的表达式为 null 或 undefined 时，返回右侧的默认值；否则返回左侧的值。
 
 ## 空值
+
 在 JavaScript / TypeScript 里：
 
 1. 属性没有传（对象里不存在这个 key）时，读取 config.timeout 的运行时结果永远是 undefined。
-  例如：new HttpClient({ baseUrl: 'https://example.com' }) 中，'timeout' in config 为 false，而 config.timeout 的值是 undefined。
+   例如：new HttpClient({ baseUrl: 'https://example.com' }) 中，'timeout' in config 为 false，而 config.timeout 的值是 undefined。
 2. null 永远不会自动产生，只有调用方或外部数据（如 JSON）显式写了 null（例如 { timeout: null }）时，它才会是 null。
 
 ## (string & {})
@@ -278,20 +285,21 @@ ShapeOf<T> 算出目标结构：
 (string & {}) 是 TypeScript 社区里非常著名的一个 类型黑魔法（Type Trick），它的唯一目的是：在保留“任意字符串都合法”的同时，让 IDE（如 VS Code）依然能弹出前面那几个字面量（'p2p'、'group'）的代码自动补全提示！
 
 1. 如果不写 (string & {})，直接写 'p2p' | 'group' | string 会怎样？
-在 TypeScript 的类型集合运算中，string 是所有字符串的全集，而 'p2p' 和 'group' 只是它的两个子集。
-当你写 'p2p' | 'group' | string 时，TS 编译器在内部优化类型时，会直接触发类型吸收（Type Absorption）：
+   在 TypeScript 的类型集合运算中，string 是所有字符串的全集，而 'p2p' 和 'group' 只是它的两个子集。
+   当你写 'p2p' | 'group' | string 时，TS 编译器在内部优化类型时，会直接触发类型吸收（Type Absorption）：
 
-``` TypeScript
+```TypeScript
 type ChatType = 'p2p' | 'group' | string;
 // 编译器化简后的实际类型：string （'p2p' 和 'group' 被完全吞掉了！）
 ```
+
 结果就是：虽然代码编译都能通过，但你在写 chatType: " 时，IDE 不会给你任何关于 'p2p' 或 'group' 的智能提示，因为编译器认为它就是一个普通的 string。
 
 2. 加上 (string & {}) 后发生了什么？
-  这利用了 TypeScript 编译器的两个微妙机制：
-  {} 的含义：在 TS 类型系统中，{} 并不代表“空对象”，而是代表“除了 null 和 undefined 之外的所有非空值”。
-  string & {} 的效果：从数学集合上看，所有字符串本来就不是 null 或 undefined，所以 string 和 {} 取交集，在类型约束上完全等价于 string（任意字符串都能传进去，不会报错）。
-  骗过编译器化简：因为 string & {} 披了一层交叉类型的“外衣”，TS 编译器在计算联合类型时不会立即把它和前面的 'p2p' | 'group' 合并吸收！
+   这利用了 TypeScript 编译器的两个微妙机制：
+   {} 的含义：在 TS 类型系统中，{} 并不代表“空对象”，而是代表“除了 null 和 undefined 之外的所有非空值”。
+   string & {} 的效果：从数学集合上看，所有字符串本来就不是 null 或 undefined，所以 string 和 {} 取交集，在类型约束上完全等价于 string（任意字符串都能传进去，不会报错）。
+   骗过编译器化简：因为 string & {} 披了一层交叉类型的“外衣”，TS 编译器在计算联合类型时不会立即把它和前面的 'p2p' | 'group' 合并吸收！
 
 最终在 IDE 里的体验就变成了：
   有智能提示：打字时，IDE 的自动补全列表里会清晰地弹出 'p2p' 和 'group' 供你选择。
