@@ -22,9 +22,6 @@ export class LarkManager {
         log.info(`LarkManager initialized for appId: ${config.appId}`);
     }
 
-    /**
-     * Retrieves or initializes the HTTP REST Client.
-     */
     getClient(): lark.Client {
         if (!this.httpClient) {
             const clientParams: ConstructorParameters<typeof lark.Client>[0] = {
@@ -48,9 +45,6 @@ export class LarkManager {
         return this.httpClient;
     }
 
-    /**
-     * Retrieves or initializes the WebSocket Client.
-     */
     getWSClient(): lark.WSClient {
         if (!this.wsClient) {
             const wsParams: ConstructorParameters<typeof lark.WSClient>[0] = {
@@ -73,9 +67,6 @@ export class LarkManager {
         return this.config;
     }
 
-    /**
-     * Returns current WebSocket connection status.
-     */
     getConnectionStatus(): lark.WSConnectionStatus {
         if (!this.wsClient) {
             return {
@@ -86,9 +77,6 @@ export class LarkManager {
         return this.wsClient.getConnectionStatus();
     }
 
-    /**
-     * Closes the active WebSocket connection if present.
-     */
     async closeWSClient(): Promise<void> {
         if (this.wsClient) {
             log.info('Closing Feishu WebSocket connection');

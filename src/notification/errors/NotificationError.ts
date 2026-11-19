@@ -8,9 +8,6 @@ export class NotificationError extends Error {
         this.name = 'NotificationError';
     }
 
-    /**
-     * Constructs a NotificationError from an arbitrary Feishu error response or exception.
-     */
     static fromLarkError(err: unknown): NotificationError {
         if (err instanceof NotificationError) {
             return err;

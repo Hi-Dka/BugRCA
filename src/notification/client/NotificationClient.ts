@@ -1,7 +1,7 @@
 import { type WSConnectionStatus } from '@larksuiteoapi/node-sdk';
 import { logger } from '../../utils/logger';
 import { type NotificationConfig } from '../types/NotificationConfig';
-import { type ReceiverTargetInput } from '../types/ReceiverTypes';
+import { type ReceiverTarget } from '../types/ReceiverTypes';
 import {
     type SendMessageResult,
     type SendTextOptions,
@@ -30,30 +30,20 @@ export class NotificationClient {
         log.info('NotificationClient initialized');
     }
 
-    /**
-     * Helper factory to create a new fluent CardBuilder.
-     */
     createCard(): CardBuilder {
         return new CardBuilder();
     }
 
-    /**
-     * Sends a plain text message to a chat, user, or email.
-     */
     async sendText(
-        target: ReceiverTargetInput | undefined,
+        target: ReceiverTarget | undefined,
         text: string,
         options?: SendTextOptions,
     ): Promise<SendMessageResult> {
         return this.messageApi.sendText(target, text, options);
     }
 
-    /**
-     * Sends an interactive card to a chat, user, or email.
-     * Accepts a CardBuilder instance, card object, or card JSON string.
-     */
     async sendCard(
-        target: ReceiverTargetInput | undefined,
+        target: ReceiverTarget | undefined,
         card: CardBuilder | FeishuCardPayload | Record<string, unknown> | string,
         options?: SendCardOptions,
     ): Promise<SendMessageResult> {
@@ -61,9 +51,6 @@ export class NotificationClient {
         return this.messageApi.sendCard(target, payload, options);
     }
 
-    /**
-     * Replies to an existing message thread with plain text.
-     */
     async replyText(
         messageId: string,
         text: string,
@@ -72,10 +59,6 @@ export class NotificationClient {
         return this.messageApi.replyText(messageId, text, options);
     }
 
-    /**
-     * Replies to an existing message thread with an interactive card.
-     * Accepts a CardBuilder instance, card object, or card JSON string.
-     */
     async replyCard(
         messageId: string,
         card: CardBuilder | FeishuCardPayload | Record<string, unknown> | string,
@@ -85,54 +68,30 @@ export class NotificationClient {
         return this.messageApi.replyCard(messageId, payload, options);
     }
 
-    /**
-     * Subscribes to inbound messages received via WebSocket.
-     * Returns an unregister function.
-     */
     onMessage(handler: MessageHandler): () => void {
         return this.eventReceiver.onMessage(handler);
     }
 
-    /**
-     * Subscribes to card action button clicks received via WebSocket.
-     * Returns an unregister function.
-     */
     onCardAction(handler: CardActionHandler): () => void {
         return this.eventReceiver.onCardAction(handler);
     }
 
-    /**
-     * Starts the WebSocket connection to begin listening for incoming Feishu events.
-     */
     async start(): Promise<void> {
         return this.eventReceiver.start();
     }
 
-    /**
-     * Stops the active WebSocket connection.
-     */
     async stop(): Promise<void> {
         return this.eventReceiver.stop();
     }
 
-    /**
-     * Returns whether the WebSocket receiver is currently running.
-     */
     isRunning(): boolean {
         return this.eventReceiver.isRunning();
     }
 
-    /**
-     * Returns detailed connection lifecycle status from the underlying Feishu WebSocket client.
-     * State: 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'failed'
-     */
     getConnectionStatus(): WSConnectionStatus {
         return this.eventReceiver.getConnectionStatus();
     }
 
-    /**
-     * Returns the current resolved notification configuration.
-     */
     getConfig(): NotificationConfig {
         return this.larkManager.getConfig();
     }

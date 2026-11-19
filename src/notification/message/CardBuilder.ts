@@ -13,9 +13,6 @@ export class CardBuilder {
     private currentActionGroup: CardActionItem[] = [];
     private wideScreenMode = true;
 
-    /**
-     * Sets the card header title and visual color theme.
-     */
     setTitle(title: string, color?: CardColorTheme): this {
         this.header = {
             title: {
@@ -27,9 +24,6 @@ export class CardBuilder {
         return this;
     }
 
-    /**
-     * Appends a markdown content block.
-     */
     addMarkdown(markdown: string): this {
         this.flushActions();
         this.elements.push({
@@ -42,16 +36,10 @@ export class CardBuilder {
         return this;
     }
 
-    /**
-     * Appends a formatted field (e.g., "**Label**: Value").
-     */
     addField(label: string, value: string): this {
         return this.addMarkdown(`**${label}**\n${value}`);
     }
 
-    /**
-     * Appends multiple fields arranged as two columns if short.
-     */
     addFields(fields: Array<{ label: string; value: string; isShort?: boolean }>): this {
         this.flushActions();
         this.elements.push({
@@ -67,9 +55,6 @@ export class CardBuilder {
         return this;
     }
 
-    /**
-     * Appends a horizontal divider line.
-     */
     addDivider(): this {
         this.flushActions();
         this.elements.push({
@@ -78,9 +63,6 @@ export class CardBuilder {
         return this;
     }
 
-    /**
-     * Appends an interactive button to the current action row.
-     */
     addButton(
         text: string,
         options?: {
@@ -111,18 +93,12 @@ export class CardBuilder {
         return this;
     }
 
-    /**
-     * Appends any custom Feishu card element directly.
-     */
     addRawElement(element: CardElement): this {
         this.flushActions();
         this.elements.push(element);
         return this;
     }
 
-    /**
-     * Sets whether the card expands in wide screen mode.
-     */
     setWideScreen(enable: boolean): this {
         this.wideScreenMode = enable;
         return this;
@@ -138,9 +114,6 @@ export class CardBuilder {
         }
     }
 
-    /**
-     * Assembles the card payload object conforming to Feishu schema.
-     */
     build(): FeishuCardPayload {
         this.flushActions();
         const payload: FeishuCardPayload = {
@@ -157,9 +130,6 @@ export class CardBuilder {
         return payload;
     }
 
-    /**
-     * Builds and serializes the card into a JSON string ready for sendCard.
-     */
     buildJSON(): string {
         return JSON.stringify(this.build());
     }

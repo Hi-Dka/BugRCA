@@ -17,10 +17,6 @@ export class EventReceiver {
 
     constructor(private readonly larkManager: LarkManager) {}
 
-    /**
-     * Registers a subscriber for inbound messages.
-     * Returns an unregister function.
-     */
     onMessage(handler: MessageHandler): () => void {
         this.messageHandlers.add(handler);
         return () => {
@@ -28,10 +24,6 @@ export class EventReceiver {
         };
     }
 
-    /**
-     * Registers a subscriber for interactive card action callbacks.
-     * Returns an unregister function.
-     */
     onCardAction(handler: CardActionHandler): () => void {
         this.cardActionHandlers.add(handler);
         return () => {
@@ -39,9 +31,6 @@ export class EventReceiver {
         };
     }
 
-    /**
-     * Starts the WebSocket connection and listens for Feishu events.
-     */
     async start(): Promise<void> {
         if (this.running) {
             log.warn('EventReceiver WebSocket is already running');
@@ -52,7 +41,6 @@ export class EventReceiver {
 
         const eventDispatcher = new lark.EventDispatcher({});
 
-        // Register inbound message handler
         eventDispatcher.register({
             'im.message.receive_v1': async (data: Record<string, unknown>) => {
                 log.debug('Received im.message.receive_v1 event');
@@ -190,9 +178,6 @@ export class EventReceiver {
         }
     }
 
-    /**
-     * Stops the WebSocket client.
-     */
     async stop(): Promise<void> {
         if (!this.running) {
             return;
@@ -202,16 +187,10 @@ export class EventReceiver {
         await this.larkManager.closeWSClient();
     }
 
-    /**
-     * Returns whether the WebSocket event receiver is currently running.
-     */
     isRunning(): boolean {
         return this.running;
     }
 
-    /**
-     * Returns current detailed WebSocket connection status.
-     */
     getConnectionStatus(): lark.WSConnectionStatus {
         return this.larkManager.getConnectionStatus();
     }
