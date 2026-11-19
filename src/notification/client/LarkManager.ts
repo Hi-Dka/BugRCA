@@ -5,8 +5,13 @@ import { NotificationError } from '../errors/NotificationError';
 
 const log = logger.tag('LarkManager');
 
+interface ResolvedNotificationConfig extends NotificationConfig {
+    domain: lark.Domain | string;
+    appType: lark.AppType;
+}
+
 export class LarkManager {
-    private readonly config: NotificationConfig;
+    private readonly config: ResolvedNotificationConfig;
     private httpClient: lark.Client | undefined;
     private wsClient: lark.WSClient | undefined;
 
@@ -27,14 +32,10 @@ export class LarkManager {
             const clientParams: ConstructorParameters<typeof lark.Client>[0] = {
                 appId: this.config.appId,
                 appSecret: this.config.appSecret,
+                domain: this.config.domain,
+                appType: this.config.appType,
             };
 
-            if (this.config.domain !== undefined) {
-                clientParams.domain = this.config.domain;
-            }
-            if (this.config.appType !== undefined) {
-                clientParams.appType = this.config.appType;
-            }
             if (this.config.loggerLevel !== undefined) {
                 clientParams.loggerLevel = this.config.loggerLevel;
             }
@@ -50,12 +51,9 @@ export class LarkManager {
             const wsParams: ConstructorParameters<typeof lark.WSClient>[0] = {
                 appId: this.config.appId,
                 appSecret: this.config.appSecret,
+                domain: this.config.domain,
                 autoReconnect: true,
             };
-
-            if (this.config.domain !== undefined) {
-                wsParams.domain = this.config.domain;
-            }
 
             this.wsClient = new lark.WSClient(wsParams);
             log.debug('Feishu WSClient instantiated');
