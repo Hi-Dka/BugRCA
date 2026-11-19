@@ -2,15 +2,28 @@ import { logger } from '../../utils/logger';
 import { type LarkManager } from '../client/LarkManager';
 import { type ReceiverTarget } from '../types/ReceiverTypes';
 import type {
+    MessageType,
+    ReplyOptions,
+    SendCardOptions,
     SendMessageResult,
     SendTextOptions,
-    SendCardOptions,
-    ReplyOptions,
 } from '../types/MessagePayloadTypes';
 import { NotificationError } from '../errors/NotificationError';
 import { type FeishuCardPayload } from './types';
 
 const log = logger.tag('MessageApi');
+
+interface LarkMessageResponse {
+    code?: number | undefined;
+    msg?: string | undefined;
+    data?:
+        | {
+              message_id?: string | undefined;
+              chat_id?: string | undefined;
+              create_time?: string | undefined;
+          }
+        | undefined;
+}
 
 export class MessageApi {
     constructor(private readonly larkManager: LarkManager) {}
@@ -77,49 +90,71 @@ export class MessageApi {
 
     private async createMessage(
         target: ReceiverTarget,
-        msgType: 'text' | 'interactive' | 'post',
+        msgType: MessageType,
         content: string,
         uuid?: string | undefined,
     ): Promise<SendMessageResult> {
         const client = this.larkManager.getClient();
         log.debug(`Sending ${msgType} message to ${target.type}:${target.id}`);
 
-        try {
-            const dataPayload: {
-                receive_id: string;
-                msg_type: string;
-                content: string;
-                uuid?: string;
-            } = {
-                receive_id: target.id,
-                msg_type: msgType,
-                content,
-            };
-
-            if (uuid !== undefined) {
-                dataPayload.uuid = uuid;
-            }
-
-            const res = await client.im.message.create({
+        return this.executeMessageRequest('send message', () =>
+            client.im.message.create({
                 params: {
                     receive_id_type: target.type,
                 },
-                data: dataPayload,
-            });
+                data: {
+                    receive_id: target.id,
+                    msg_type: msgType,
+                    content,
+                    ...(uuid !== undefined && { uuid }),
+                },
+            }),
+        );
+    }
+
+    private async replyMessage(
+        messageId: string,
+        msgType: MessageType,
+        content: string,
+        uuid?: string | undefined,
+    ): Promise<SendMessageResult> {
+        const client = this.larkManager.getClient();
+        log.debug(`Replying ${msgType} to message_id: ${messageId}`);
+
+        return this.executeMessageRequest('reply message', () =>
+            client.im.message.reply({
+                path: {
+                    message_id: messageId,
+                },
+                data: {
+                    msg_type: msgType,
+                    content,
+                    ...(uuid !== undefined && { uuid }),
+                },
+            }),
+        );
+    }
+
+    private async executeMessageRequest(
+        action: string,
+        send: () => Promise<LarkMessageResponse>,
+    ): Promise<SendMessageResult> {
+        try {
+            const res = await send();
 
             if (res.code !== 0 && res.code !== undefined) {
                 throw new NotificationError(
-                    res.msg || `Failed to send message (code ${res.code})`,
+                    res.msg || `Failed to ${action} (code ${res.code})`,
                     res.code,
                     res,
                 );
             }
 
             const messageId = res.data?.message_id ?? '';
-            const chatId = res.data?.chat_id ?? undefined;
-            const createTime = res.data?.create_time ?? undefined;
+            const chatId = res.data?.chat_id;
+            const createTime = res.data?.create_time;
 
-            log.info(`Message sent successfully, message_id: ${messageId}`);
+            log.info(`${action} succeeded, message_id: ${messageId}`);
             return {
                 messageId,
                 ...(chatId !== undefined && { chatId }),
@@ -127,62 +162,7 @@ export class MessageApi {
                 raw: res,
             };
         } catch (err) {
-            log.error(`Failed to send message: ${String(err)}`);
-            throw NotificationError.fromLarkError(err);
-        }
-    }
-
-    private async replyMessage(
-        messageId: string,
-        msgType: 'text' | 'interactive' | 'post',
-        content: string,
-        uuid?: string | undefined,
-    ): Promise<SendMessageResult> {
-        const client = this.larkManager.getClient();
-        log.debug(`Replying ${msgType} to message_id: ${messageId}`);
-
-        try {
-            const dataPayload: {
-                msg_type: string;
-                content: string;
-                uuid?: string;
-            } = {
-                msg_type: msgType,
-                content,
-            };
-
-            if (uuid !== undefined) {
-                dataPayload.uuid = uuid;
-            }
-
-            const res = await client.im.message.reply({
-                path: {
-                    message_id: messageId,
-                },
-                data: dataPayload,
-            });
-
-            if (res.code !== 0 && res.code !== undefined) {
-                throw new NotificationError(
-                    res.msg || `Failed to reply message (code ${res.code})`,
-                    res.code,
-                    res,
-                );
-            }
-
-            const replyId = res.data?.message_id ?? '';
-            const chatId = res.data?.chat_id ?? undefined;
-            const createTime = res.data?.create_time ?? undefined;
-
-            log.info(`Reply sent successfully, message_id: ${replyId}`);
-            return {
-                messageId: replyId,
-                ...(chatId !== undefined && { chatId }),
-                ...(createTime !== undefined && { createTime }),
-                raw: res,
-            };
-        } catch (err) {
-            log.error(`Failed to reply message: ${String(err)}`);
+            log.error(`Failed to ${action}: ${String(err)}`);
             throw NotificationError.fromLarkError(err);
         }
     }
