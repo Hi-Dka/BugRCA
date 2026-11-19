@@ -2,14 +2,15 @@ import {
     type CardColorTheme,
     type CardButtonType,
     type CardElement,
+    type CardCustomElement,
     type CardHeader,
     type CardActionItem,
     type FeishuCardPayload,
 } from './types';
 
 export class CardBuilder {
-    private header?: CardHeader | undefined;
-    private elements: CardElement[] = [];
+    private header: CardHeader | undefined = undefined;
+    private elements: Array<CardElement | CardCustomElement> = [];
     private currentActionGroup: CardActionItem[] = [];
     private wideScreenMode = true;
 
@@ -93,7 +94,7 @@ export class CardBuilder {
         return this;
     }
 
-    addRawElement(element: CardElement): this {
+    addRawElement(element: CardElement | CardCustomElement): this {
         this.flushActions();
         this.elements.push(element);
         return this;
