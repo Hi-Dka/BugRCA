@@ -16,6 +16,18 @@
 
 在 TypeScript（以及现代 JavaScript ES6+）中，... 三个点有两种完全相反的作用，具体取决于它出现的位置：展开运算符（Spread Operator） 或 剩余参数/元素（Rest Parameter / Rest Element）。
 
+一句话区分“展开（Spread）”和“剩余（Rest）”
+
+都用 ...，看它站在“给出数据”还是“接收数据”的一侧：
+
+• 展开（Spread）：把一个已有对象/数组拆散放进去（通常在等号右边、对象/数组字面量、函数调用实参里）：
+  const copy = { ...config, timeout: 5000 }; // 展开对象
+  const list = [...arr, 4];                 // 展开数组
+  fn(...args);                              // 展开函数实参
+
+• 剩余（Rest）：把没匹配完的散落项打包收起来（通常在等号左边解构、或函数形参里）：
+  const { domain, ...rest } = config; // 剩余属性：rest 是去掉 domain 后剩下的对象
+  function fn(first, ...others) {}    // 剩余参数：others 是第 2 个起的所有参数组成的数组
 ## extends
 
 `extends` 关键字在 TypeScript 中有多种用途，主要用于类型约束和继承。它可以用于泛型约束、接口继承、类继承等场景。
@@ -260,3 +272,27 @@ ShapeOf<T> 算出目标结构：
 1. 属性没有传（对象里不存在这个 key）时，读取 config.timeout 的运行时结果永远是 undefined。
   例如：new HttpClient({ baseUrl: 'https://example.com' }) 中，'timeout' in config 为 false，而 config.timeout 的值是 undefined。
 2. null 永远不会自动产生，只有调用方或外部数据（如 JSON）显式写了 null（例如 { timeout: null }）时，它才会是 null。
+
+## (string & {})
+
+(string & {}) 是 TypeScript 社区里非常著名的一个 类型黑魔法（Type Trick），它的唯一目的是：在保留“任意字符串都合法”的同时，让 IDE（如 VS Code）依然能弹出前面那几个字面量（'p2p'、'group'）的代码自动补全提示！
+
+1. 如果不写 (string & {})，直接写 'p2p' | 'group' | string 会怎样？
+在 TypeScript 的类型集合运算中，string 是所有字符串的全集，而 'p2p' 和 'group' 只是它的两个子集。
+当你写 'p2p' | 'group' | string 时，TS 编译器在内部优化类型时，会直接触发类型吸收（Type Absorption）：
+
+``` TypeScript
+type ChatType = 'p2p' | 'group' | string;
+// 编译器化简后的实际类型：string （'p2p' 和 'group' 被完全吞掉了！）
+```
+结果就是：虽然代码编译都能通过，但你在写 chatType: " 时，IDE 不会给你任何关于 'p2p' 或 'group' 的智能提示，因为编译器认为它就是一个普通的 string。
+
+2. 加上 (string & {}) 后发生了什么？
+  这利用了 TypeScript 编译器的两个微妙机制：
+  {} 的含义：在 TS 类型系统中，{} 并不代表“空对象”，而是代表“除了 null 和 undefined 之外的所有非空值”。
+  string & {} 的效果：从数学集合上看，所有字符串本来就不是 null 或 undefined，所以 string 和 {} 取交集，在类型约束上完全等价于 string（任意字符串都能传进去，不会报错）。
+  骗过编译器化简：因为 string & {} 披了一层交叉类型的“外衣”，TS 编译器在计算联合类型时不会立即把它和前面的 'p2p' | 'group' 合并吸收！
+
+最终在 IDE 里的体验就变成了：
+  有智能提示：打字时，IDE 的自动补全列表里会清晰地弹出 'p2p' 和 'group' 供你选择。
+  高度可扩展：如果你业务里遇到飞书/钉钉新增的 'topic_group' 或自定义类型，直接传 'custom_type' 过去，TypeScript 也不会报错。
