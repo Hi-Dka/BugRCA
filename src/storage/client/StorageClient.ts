@@ -51,9 +51,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Inserts a record into the target table and returns the last inserted rowid.
-     */
     insert<T extends Record<string, unknown>>(table: string, data: T): number | bigint {
         this.ensureOpen();
         try {
@@ -68,9 +65,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Atomically inserts multiple records into the target table within a single transaction.
-     */
     insertMany<T extends Record<string, unknown>>(table: string, dataList: T[]): void {
         if (dataList.length === 0) {
             return;
@@ -82,9 +76,6 @@ export class StorageClient {
         });
     }
 
-    /**
-     * Updates matching records in the target table and returns the number of affected rows.
-     */
     update<T extends Record<string, unknown>>(
         table: string,
         data: T,
@@ -103,9 +94,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Queries records from a table matching optional criteria.
-     */
     query<T = Record<string, unknown>>(table: string, options?: QueryOptions): T[] {
         this.ensureOpen();
         try {
@@ -119,9 +107,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Queries a single record matching optional criteria, or returns undefined.
-     */
     queryOne<T = Record<string, unknown>>(
         table: string,
         where?: Record<string, unknown>,
@@ -130,9 +115,6 @@ export class StorageClient {
         return results[0];
     }
 
-    /**
-     * Deletes matching records from the target table and returns the number of deleted rows.
-     */
     delete(table: string, where?: Record<string, unknown>): number | bigint {
         this.ensureOpen();
         try {
@@ -147,9 +129,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Executes raw DDL or batch SQL statement without returning rows.
-     */
     exec(sql: string): void {
         this.ensureOpen();
         try {
@@ -160,9 +139,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Executes a parameterized DML statement and returns affected rows and last insert ID.
-     */
     run(sql: string, params: unknown[] = []): RunResult {
         this.ensureOpen();
         try {
@@ -179,9 +155,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Executes raw parameterized SQL query and returns results.
-     */
     querySql<T = Record<string, unknown>>(sql: string, params: unknown[] = []): T[] {
         this.ensureOpen();
         try {
@@ -194,10 +167,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Executes a callback within an atomic transaction.
-     * Automatically commits on completion or rolls back if an error occurs.
-     */
     transaction<T>(fn: () => T): T {
         this.ensureOpen();
         this.db.exec('BEGIN IMMEDIATE;');
@@ -215,9 +184,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Closes the database connection.
-     */
     close(): void {
         if (!this.closed) {
             log.info('Closing database connection');
@@ -226,9 +192,6 @@ export class StorageClient {
         }
     }
 
-    /**
-     * Checks if the database connection is currently open.
-     */
     isOpen(): boolean {
         return !this.closed;
     }

@@ -4,9 +4,6 @@ import { type QueryOptions, type SortDirection } from '../types/QueryTypes';
 
 const IDENTIFIER_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
-/**
- * Validates that an identifier (table name or column name) contains only safe alphanumeric characters.
- */
 export function validateIdentifier(name: string): string {
     if (!name || !IDENTIFIER_REGEX.test(name)) {
         throw new StorageError(`Invalid SQL identifier: "${name}"`);
@@ -14,9 +11,6 @@ export function validateIdentifier(name: string): string {
     return name;
 }
 
-/**
- * Builds a parameterized WHERE clause from a key-value filter object.
- */
 export function buildWhereClause(where?: Record<string, unknown>): {
     sql: string;
     params: unknown[];
@@ -44,9 +38,6 @@ export function buildWhereClause(where?: Record<string, unknown>): {
     };
 }
 
-/**
- * Builds a parameterized INSERT statement.
- */
 export function buildInsert(
     table: string,
     data: Record<string, unknown>,
@@ -75,9 +66,6 @@ export function buildInsert(
     return { sql, params };
 }
 
-/**
- * Builds a parameterized UPDATE statement.
- */
 export function buildUpdate(
     table: string,
     data: Record<string, unknown>,
@@ -108,9 +96,6 @@ export function buildUpdate(
     return { sql, params };
 }
 
-/**
- * Builds a parameterized SELECT query.
- */
 export function buildSelect(
     table: string,
     options?: QueryOptions,
@@ -165,9 +150,6 @@ export function buildSelect(
     return { sql, params };
 }
 
-/**
- * Builds a parameterized DELETE statement.
- */
 export function buildDelete(
     table: string,
     where?: Record<string, unknown>,
@@ -181,9 +163,6 @@ export function buildDelete(
     return { sql, params: wherePart.params };
 }
 
-/**
- * Normalizes parameter values to types accepted by node:sqlite StatementSync.
- */
 export function normalizeParam(val: unknown): SQLInputValue {
     if (val === null || val === undefined) {
         return null;

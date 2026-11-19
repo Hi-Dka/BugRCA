@@ -8,9 +8,6 @@ export class StorageError extends Error {
         this.name = 'StorageError';
     }
 
-    /**
-     * Normalizes an unknown exception into a standardized StorageError.
-     */
     static fromError(err: unknown): StorageError {
         if (err instanceof StorageError) {
             return err;
